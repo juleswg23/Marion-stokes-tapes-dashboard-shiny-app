@@ -16,6 +16,9 @@ jobs:
       - name: Install rsconnect package
         run: R -e "install.packages('rsconnect')"
 
+      - name: Debug - Check installed packages
+        run: R -e "installed.packages()"
+
       - name: Check if app exists and deploy/update
         env:
           SHINYAPPS_TOKEN: ${{ secrets.TOKEN }}
