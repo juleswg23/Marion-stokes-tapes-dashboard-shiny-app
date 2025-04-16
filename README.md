@@ -1,4 +1,4 @@
-# TV News Archive Dashboard
+# Marion Stokes Archive Dashboard
 
 An interactive dashboard for exploring and analyzing television news data from the Marion Stokes archive.
 
