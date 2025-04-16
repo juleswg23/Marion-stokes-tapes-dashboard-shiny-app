@@ -2,7 +2,7 @@
 
 An interactive dashboard for exploring and analyzing television news data from the Marion Stokes archive.
 
-![Dashboard Screenshot](<img width="1435" alt="SampleDashboard" src="https://github.com/user-attachments/assets/1f40a1e5-094f-429d-8429-c57eae7d0682" />) 
+<img width="1435" alt="SampleDashboard" src="https://github.com/user-attachments/assets/1f40a1e5-094f-429d-8429-c57eae7d0682" />
 
 ## About the Project
 
@@ -68,4 +68,3 @@ shiny::runApp()
 3. Choose how many top items to display
 4. Use the "View Only" filters to focus on specific subsets
 5. The plot and table will update automatically
-6. 
