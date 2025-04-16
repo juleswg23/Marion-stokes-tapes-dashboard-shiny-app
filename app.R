@@ -6,12 +6,12 @@ library(ggplot2)
 library(data.table)
 library(DT)  # For interactive tables
 
-# Sample data table (replace this with your actual data)
 dt <- dt_final
+dt[, start_time := as.character(start_time)]
 
 # Define the UI
 ui <- fluidPage(
-  titlePanel("Interactive Frequency Plot"),
+  titlePanel("Marion Stokes Archive Dashboard"),
   
   sidebarLayout(
     sidebarPanel(
@@ -22,8 +22,8 @@ ui <- fluidPage(
       selectInput(
         "category", 
         "Category:", 
-        choices = setdiff(colnames(dt)[sapply(dt, is.character)], 
-                          c("...1", "month", "year")),  # Exclude specific categories
+        choices = setdiff(colnames(dt), 
+                          c("...1", "month", "year", "date")),  # Exclude specific categories
         selected = "channel_network"
       ),
       
@@ -45,16 +45,26 @@ ui <- fluidPage(
           selected = "All"
         ),
         uiOutput("view_only_filter_ui")
-      )
+      ),
+      
+      # NEW: Description filter input
+      # textInput("desc_filter", "Filter by Description:", 
+                # placeholder = "Type text to filter descriptions")
     ),
     
+    
+    
     mainPanel(
-      plotOutput("frequency_plot",  height = "400px"),
+      plotOutput("frequency_plot", height = "400px"),
       div(
         style = "height: calc(100vh - 500px); overflow-y: auto;",  # Adjust height dynamically
         DTOutput("frequency_table")
-      )
+      ),
       
+      ## New for description filter
+      # hr(),
+      # h4("Rows Matching Description Filter"),
+      # DTOutput("description_table")
     )
   )
 )
@@ -81,7 +91,7 @@ server <- function(input, output) {
     }
   })
   
-  # Modify the agg_data reactive (first few lines)
+  # Modify the agg_data reactive
   agg_data <- reactive({
     # Existing parameters
     category <- input$category
@@ -91,7 +101,6 @@ server <- function(input, output) {
     
     dt_clean <- copy(dt)
     
-    # NEW: Apply view-only filter first
     if(input$view_only_category != "All" && !is.null(input$view_only_filter_values)) {
       dt_clean <- dt_clean[get(input$view_only_category) %in% input$view_only_filter_values]
     }
@@ -136,7 +145,7 @@ server <- function(input, output) {
       geom_point(size = 3) +
       theme_minimal() +
       theme(axis.text.x = element_text(angle = 70, hjust = 1)) +
-      labs(x = "Year Bucket", y = "Frequency", color = "Category")
+      labs(x = "Years", y = "Frequency", color = "Category")
   })
   
   # Render the table
@@ -152,10 +161,48 @@ server <- function(input, output) {
         dom = "t",  # Only show the table (no search, pagination, etc.)
         ordering = FALSE  # Disable column reordering
       ),
-      rownames = FALSE  # Remove row IDs
+      rownames = FALSE,  # Remove row IDs
+      colnames = c(colnames(dt_agg_all_years)[1], "Total")
     )
   })
+  
+  # NEW: Reactive expression for description filtering
+  description_filtered_rows <- reactive({
+    dt_clean <- copy(dt)
+    # Only filter if text is provided; otherwise, return all rows
+    if (nzchar(input$desc_filter)) {
+      # Assuming your description column is named "description"
+      dt_clean <- dt_clean[grepl(input$desc_filter, Description, ignore.case = TRUE)]
+    }
+    dt_clean
+  })
+  
+  # NEW: Render the description filtered table
+  # output$description_table <- renderDT({
+  #   dt_desc <- description_filtered_rows()
+  #   # Subset only the desired columns: date, start_time, Description, channel_network
+  #   dt_desc_subset <- head(dt_desc[, .(date, start_time, Description, channel_network)], 10)
+  #   datatable(
+  #     dt_desc_subset,
+  #     options = list(
+  #       scrollX = TRUE,
+  #       dom = "t"
+  #     ),
+  #     rownames = FALSE
+  #   )
+  # })
 }
 
 # Run the Shiny app
 shinyApp(ui = ui, server = server)
+
+
+
+
+
+### 3/31 Ideas
+
+## Maybe filter by word in data?
+
+## Right now the filter will lose entries that had bad dates
+

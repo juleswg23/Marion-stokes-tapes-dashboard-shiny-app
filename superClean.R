@@ -110,7 +110,7 @@ clean_dates <- function(dt, remove_bad_dates = TRUE) {
   if (remove_bad_dates) { dt_clean <- dt_clean[!is.na(`date`)]}  # Filter out rows with NA in the `dates` column
   dt_clean[, month := format(date, "%Y-%m")] # Add column for month
   dt_clean[, year := format(date, "%Y")] # Add column for year
-  if (remove_bad_dates) {dt_clean <- dt_clean[date >= as.Date("1980-01-01") &
+  if (remove_bad_dates) {dt_clean <- dt_clean[date >= as.Date("1976-01-01") &
                                                date <= as.Date("2012-12-31")]} # chop off dates before 1980 and after 2012
   return (dt_clean)
 }
@@ -134,6 +134,23 @@ dt_final <- split_by_channel(clean_dates(delete_NA_rows(dt)))
 dt_final <- capitalize_format_detaials(dt_final)
 
 dt_final[, month_without_year := format(date, "%m")]
+
+
+# ddd <- dt_final
+# 
+# ddd[, start_time := as.numeric(start_time)]
+# 
+# ddd[is.na(start_time), start_time := 0]  # Replace NA with 0 or another default value if needed
+# 
+# ddd[, start_time := format(as.POSIXct(start_time, origin = "1970-01-01", tz = "UTC"), format = "%H:%M:%S")]
+# 
+# setorder(ddd, date)
+# 
+# fwrite(dt, file = "dt_raw.csv", na = "")
+
+
+
+
 ## Chekcing out which entries have over 2 dates
 # dt_filtered <- dt_crude[sapply(get(date_col), length) >= 2]
 # 
