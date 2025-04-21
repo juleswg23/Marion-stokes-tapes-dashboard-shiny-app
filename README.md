@@ -1,6 +1,6 @@
-# Marion Stokes Archive Dashboard
+# Marion Stokes Tapes Dashboard
 
-An interactive dashboard for exploring and analyzing television news data from the Marion Stokes archive.
+An interactive dashboard for exploring and analyzing television news data from the Marion Stokes tapes archive.
 
 <img width="1435" alt="SampleDashboard" src="https://github.com/user-attachments/assets/1f40a1e5-094f-429d-8429-c57eae7d0682" />
 
@@ -23,7 +23,7 @@ The data backing this dashboard comes from the Marion Stokes Television News Arc
 
 Access the live dashboard here:
 
-[Analyzing Daniel Data Dashboard](https://jules-dev.shinyapps.io/analyzingdanieldata/)
+[Marion Stokes Tapes Dashboard](https://jules-dev.shinyapps.io/Marion-Stokes-Tapes-Dashboard/)
 
 ## Code Structure
 
