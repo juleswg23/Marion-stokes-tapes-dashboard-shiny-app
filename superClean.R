@@ -2,6 +2,9 @@ library(readxl)
 library(purrr)
 library(dplyr)
 library(data.table)
+library(lubridate)
+library(hms)
+
 
 path <- "Marion Stokes videocassette.xlsx"
 
@@ -18,7 +21,7 @@ read_excel_special <- function(s){
   }
   
   data <- read_excel(path = path,
-             sheet = s, col_types = c("text", "text", "text", "text", "numeric", 
+             sheet = s, col_types = c("text", "text", "text", "text", "text", 
                                       "text", "text", "text", "text"),
              range = cells) # Exclude the first column
   
@@ -91,8 +94,11 @@ dt[, (date_col) := sapply(get(date_col), function(x) x[1])]
 dt[, (date_col) := lapply(.SD, as.Date), .SDcols = date_col]
 
 # Convert the second numeric column to Time
-dt[, (time_col) := hms::hms(hours = get(time_col) * 24)]
-
+dt[, (time_col) := fifelse(
+  grepl("AM|PM", get(time_col), ignore.case = TRUE),  # if it looks like "655AM"
+  as_hms(parse_date_time(get(time_col), orders = "I%M%p")),
+  as_hms((as.numeric(get(time_col)) %% 1) * 86400)  # if it's an Excel serial, grab the time part only
+)]
 
 split_by_channel <- function(dt) {
   to_return <- dt[, channel_network := fifelse(channel_network == "NA", NA_character_, channel_network)]

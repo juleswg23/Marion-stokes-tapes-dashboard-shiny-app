@@ -51,7 +51,8 @@ ui <- fluidPage(
         style = "font-size: 0.85em; color: #666;",
         p(HTML("<strong>Last updated:</strong> April 2025")),
         p(HTML("<strong>Author:</strong> Jules Walzer-Goldfeld")),
-        p(HTML("<strong>See the code:</strong> <a href = https://github.com/juleswg23/Marion-stokes-tapes-dashboard-shiny-app>Github Link</a>"))
+        p(HTML("<strong>See the code:</strong> <a href = https://github.com/juleswg23/Marion-stokes-tapes-dashboard-shiny-app>Github Link</a>")),
+        p(downloadButton("download_dataset", "Download the dataset", class = "btn-sm")),
       ),
       
       # NEW: Description filter input
@@ -197,6 +198,18 @@ server <- function(input, output) {
   #     rownames = FALSE
   #   )
   # })
+  
+  
+  output$download_dataset <- downloadHandler(
+    filename = function() {
+      paste0("Marion_Stokes_Dataset_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      file.copy("Datasets/dataset_cleaned.csv", file)
+    },
+    contentType = "text/csv"
+  )
+  
 }
 
 # Run the Shiny app
