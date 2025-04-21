@@ -54,3 +54,4 @@ columnCounts/
 *.txt
 Cleaning.R
 Descriptions.R
+.DS_Store
