@@ -1,0 +1,11 @@
+2025-02-10-Notes-Stokes-Tapes-Analysis.pdf
+*.txt
+
+README.md
+
+Images/*
+Datasets/dataset_raw.csv
+Cleaning.R
+Descriptions.R
+Datasets/DatasetVersions3-31.R
+.Renviron

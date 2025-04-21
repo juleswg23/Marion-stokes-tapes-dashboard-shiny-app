@@ -154,7 +154,7 @@ dt_final[, month_without_year := format(date, "%m")]
 # 
 # fwrite(dt, file = "dt_raw.csv", na = "")
 
-
+## TODO CACHE LOADING
 
 
 ## Chekcing out which entries have over 2 dates
