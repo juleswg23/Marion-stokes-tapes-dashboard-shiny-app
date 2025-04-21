@@ -1,13 +1,10 @@
 library(readxl)
 library(purrr)
-library(dplyr)
 library(data.table)
 library(lubridate)
 library(hms)
 
-
 path <- "Marion Stokes videocassette.xlsx"
-
 
 read_excel_special <- function(s){
   
@@ -43,15 +40,15 @@ dt <- as.data.table(full_data_frame)
 
 
 setnames(dt, c("Format ( B or V)", "date YYYY-MM-DD", "Format details", "start time", "channel / network", "Description - Program titles - any/all other information written out on tape label", "Notes by Logger", "logged by", "Box #"),
-         c("Format", "date", "Format_details", "start_time", "channel_network", "Description", "Notes", "logged_by", "Box"), 
+         c("Format", "Date", "Format Details", "Time", "Network", "Description", "Notes", "Logged By", "Box"), 
          skip_absent=TRUE)
 
 # toWrite <- dt %>%
 #   mutate(across(where(is.list), ~ sapply(., toString))) # Convert list columns to strings
 # write.csv(toWrite, file = "simpleCombinedDataset.csv", na='')
 
-date_col <- "date"
-time_col <- "start_time"
+date_col <- "Date"
+time_col <- "Time"
 
 split_and_convert_dates <- function(date_string) {
   if (is.na(date_string)) {
@@ -101,23 +98,23 @@ dt[, (time_col) := fifelse(
 )]
 
 split_by_channel <- function(dt) {
-  to_return <- dt[, channel_network := fifelse(channel_network == "NA", NA_character_, channel_network)]
+  to_return <- dt[, Network := fifelse(Network == "NA", NA_character_, Network)]
   to_return <- to_return[, 
-                         .(split_col = unlist(strsplit((channel_network), "[/;,&]"))), 
-                         by = setdiff(names(to_return), "channel_network")]
+                         .(split_col = unlist(strsplit((Network), "[/;,&]"))), 
+                         by = setdiff(names(to_return), "Network")]
   
-  to_return <- to_return[, channel_network := toupper(gsub("[^a-zA-Z0-9]", "", split_col))]
+  to_return <- to_return[, Network := toupper(gsub("[^a-zA-Z0-9]", "", split_col))]
   to_return[, split_col := NULL]
   return(to_return)
 }
 
 clean_dates <- function(dt, remove_bad_dates = TRUE) {
   dt_clean <- dt
-  if (remove_bad_dates) { dt_clean <- dt_clean[!is.na(`date`)]}  # Filter out rows with NA in the `dates` column
-  dt_clean[, month := format(date, "%Y-%m")] # Add column for month
-  dt_clean[, year := format(date, "%Y")] # Add column for year
-  if (remove_bad_dates) {dt_clean <- dt_clean[date >= as.Date("1976-01-01") &
-                                               date <= as.Date("2012-12-31")]} # chop off dates before 1980 and after 2012
+  if (remove_bad_dates) { dt_clean <- dt_clean[!is.na(`Date`)]}  # Filter out rows with NA in the `dates` column
+  dt_clean[, month := format(Date, "%Y-%m")] # Add column for month
+  dt_clean[, year := format(Date, "%Y")] # Add column for year
+  if (remove_bad_dates) {dt_clean <- dt_clean[Date >= as.Date("1976-01-01") &
+                                               Date <= as.Date("2012-12-31")]} # chop off dates before 1980 and after 2012
   return (dt_clean)
 }
 
@@ -128,7 +125,7 @@ delete_NA_rows <- function(dt) {
 
 capitalize_format_detaials <- function(dt) {
   to_return <- dt
-  to_return[, Format_details := toupper(Format_details)]
+  to_return[, `Format Details` := toupper(`Format Details`)]
   return(to_return)
 }
 
@@ -139,7 +136,10 @@ dt_split_channel <- split_by_channel(dt)
 dt_final <- split_by_channel(clean_dates(delete_NA_rows(dt)))
 dt_final <- capitalize_format_detaials(dt_final)
 
-dt_final[, month_without_year := format(date, "%m")]
+dt_final[, month_without_year := format(Date, "%m")]
+
+dt_final[, Time := format(Time, "%H:%M:%S")]  # Explicitly format as "HH:MM:SS"
+saveRDS(dt_final, file = "Datasets/dt_final.rds", compress = FALSE)
 
 
 # ddd <- dt_final
@@ -150,7 +150,7 @@ dt_final[, month_without_year := format(date, "%m")]
 # 
 # ddd[, start_time := format(as.POSIXct(start_time, origin = "1970-01-01", tz = "UTC"), format = "%H:%M:%S")]
 # 
-# setorder(ddd, date)
+# setorder(ddd, Date)
 # 
 # fwrite(dt, file = "dt_raw.csv", na = "")
 

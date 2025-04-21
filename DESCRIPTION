@@ -1,0 +1,15 @@
+# DESCRIPTION
+Package: MarionStokesTapesDashboard
+Type: ShinyApp
+Title: Marion Stokes Tapes Dashboard
+Version: 0.1.0
+Imports:
+  shiny,
+  ggplot2,
+  data.table,
+  DT,
+  readxl,
+  purrr,
+  lubridate,
+  hms,
+  rsconnect

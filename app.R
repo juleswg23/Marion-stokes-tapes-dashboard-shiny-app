@@ -1,13 +1,13 @@
-source("superClean.R")
+# source("superClean.R")
 
 # Load necessary libraries
 library(shiny)
 library(ggplot2)
 library(data.table)
-library(DT)  # For interactive tables
+library(DT)
 
-dt <- dt_final
-dt[, start_time := as.character(start_time)]
+dt <- readRDS("Datasets/dt_final.rds")
+dt[, Time := as.character(Time)]
 
 # Define the UI
 ui <- fluidPage(
@@ -16,69 +16,90 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       # Input for bucket size
-      sliderInput("bucket_size", "Bucket Size (years):", min = 1, max = 10, value = 3),
+      sliderInput(
+        "bucket_size",
+        "Bucket Size (years):",
+        min = 1,
+        max = 10,
+        value = 3
+      ),
       
       # Input for category (dropdown with excluded options)
       selectInput(
-        "category", 
-        "Category:", 
-        choices = setdiff(colnames(dt), 
-                          c("...1", "month", "year", "date")),  # Exclude specific categories
-        selected = "channel_network"
+        "category",
+        "Category:",
+        choices = setdiff(colnames(dt), c("...1", "month", "year", "Date")),
+        # Exclude specific categories
+        selected = "Network"
       ),
       
       # Input for top N lines to plot
-      sliderInput("top_n", "Top N Lines to Plot:", min = 1, max = 20, value = 8),
+      sliderInput(
+        "top_n",
+        "Top N Lines to Plot:",
+        min = 1,
+        max = 20,
+        value = 8
+      ),
       
       # Checkbox to include/exclude NA values
       checkboxInput("include_na", "Include NA Values", value = TRUE),
       
       # View Only Filter (inside sidebarPanel)
-      wellPanel(
-        h4("View Only Filter"),
-        helpText("Use this to focus on specific subsets of the data. Select 'All' to include everything."),
-        selectInput(
-          "view_only_category",
-          "View Only Category:",
-          choices = c("All", setdiff(colnames(dt)[sapply(dt, is.character)], 
-                                     c("...1", "month", "year"))),
-          selected = "All"
-        ),
-        uiOutput("view_only_filter_ui")
+      h4("View Only Filter"),
+      helpText(
+        "Use this to focus on specific subsets of the data. Select 'All' to include everything."
       ),
-      
-      div(
-        style = "font-size: 0.85em; color: #666;",
-        p(HTML("<strong>Last updated:</strong> April 2025")),
-        p(HTML("<strong>Author:</strong> Jules Walzer-Goldfeld")),
-        p(HTML("<strong>See the code:</strong> <a href = https://github.com/juleswg23/Marion-stokes-tapes-dashboard-shiny-app>Github Link</a>")),
-        p(downloadButton("download_dataset", "Download the dataset", class = "btn-sm")),
+      selectInput(
+        "view_only_category",
+        "View Only Category:",
+        choices = c("All", setdiff(colnames(dt)[sapply(dt, is.character)], c(
+          "...1", "month", "year"
+        ))),
+        selected = "All"
       ),
+      uiOutput("view_only_filter_ui"),
       
       # NEW: Description filter input
-      # textInput("desc_filter", "Filter by Description:", 
-                # placeholder = "Type text to filter descriptions")
+      textInput("desc_filter", "Search by Description:", placeholder = "Type text to filter descriptions"),
+      
+      div(style = "font-size: 0.85em; color: #666;", p(
+        HTML("<strong>Last updated:</strong> April 2025")
+      ), p(
+        HTML("<strong>Author:</strong> Jules Walzer-Goldfeld")
+      ), p(
+        HTML(
+          "<strong>See the code:</strong> <a href = https://github.com/juleswg23/Marion-stokes-tapes-dashboard-shiny-app>Github Link</a>"
+        )
+      ), p(
+        downloadButton("download_dataset", "Download the dataset", class = "btn-sm")
+      ), ),
+      
+      
     ),
     
     
     mainPanel(
       plotOutput("frequency_plot", height = "400px"),
-      div(
-        style = "height: calc(100vh - 500px); overflow-y: auto;",  # Adjust height dynamically
-        DTOutput("frequency_table")
-      ),
       
-      ## New for description filter
-      # hr(),
-      # h4("Rows Matching Description Filter"),
-      # DTOutput("description_table")
+      fluidRow(column(
+        width = 9,
+        div(
+          style = "height: calc(100vh - 500px); overflow-y: auto;",
+          h4("Rows Matching Description"),
+          DTOutput("description_table")
+        )
+      ),
+      column(
+        width = 3,
+        div(style = "height: calc(100vh - 500px); overflow-y: auto;", h4("Frequency"), DTOutput("frequency_table"))
+      ))
     )
   )
 )
 
 # Define the server logic
 server <- function(input, output) {
-  
   top_view_only_values <- reactive({
     req(input$view_only_category != "All")
     col <- input$view_only_category
@@ -87,7 +108,7 @@ server <- function(input, output) {
   
   # Rename UI render for dynamic filter
   output$view_only_filter_ui <- renderUI({
-    if(input$view_only_category != "All") {
+    if (input$view_only_category != "All") {
       selectizeInput(
         "view_only_filter_values",
         paste("View Only", input$view_only_category),
@@ -108,14 +129,16 @@ server <- function(input, output) {
     
     dt_clean <- copy(dt)
     
-    if(input$view_only_category != "All" && !is.null(input$view_only_filter_values)) {
+    if (input$view_only_category != "All" &&
+        !is.null(input$view_only_filter_values)) {
       dt_clean <- dt_clean[get(input$view_only_category) %in% input$view_only_filter_values]
     }
     
     dt_clean[, year := as.numeric(year)]
     
     # Create year buckets
-    dt_clean[, year_bucket := paste0((year %/% bucket_size) * bucket_size, "-", 
+    dt_clean[, year_bucket := paste0((year %/% bucket_size) * bucket_size,
+                                     "-",
                                      ((year %/% bucket_size) * bucket_size + bucket_size - 1))]
     
     # Filter out NA values if the checkbox is unchecked
@@ -147,11 +170,26 @@ server <- function(input, output) {
   output$frequency_plot <- renderPlot({
     dt_agg <- agg_data()$plot_data
     
-    ggplot(dt_agg, aes(x = year_bucket, y = N, color = category, group = category)) +
+    ggplot(dt_agg,
+           aes(
+             x = year_bucket,
+             y = N,
+             color = category,
+             group = category
+           )) +
       geom_line(linewidth = 1) +
       geom_point(size = 3) +
       theme_minimal() +
-      theme(axis.text.x = element_text(angle = 70, hjust = 1)) +
+      theme(
+        axis.text.x = element_text(angle = 70, hjust = 1, size = 12),  
+        axis.text.y = element_text(size = 12),
+        
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14),
+        
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 11),
+      ) +
       labs(x = "Years", y = "Frequency", color = "Category")
   })
   
@@ -163,12 +201,15 @@ server <- function(input, output) {
     datatable(
       dt_agg_all_years,
       options = list(
-        pageLength = input$top_n,  # Dynamic page length based on top_n
+        pageLength = input$top_n,
+        # Dynamic page length based on top_n
         scrollX = TRUE,
-        dom = "t",  # Only show the table (no search, pagination, etc.)
+        dom = "t",
+        # Only show the table (no search, pagination, etc.)
         ordering = FALSE  # Disable column reordering
       ),
-      rownames = FALSE,  # Remove row IDs
+      rownames = FALSE,
+      # Remove row IDs
       colnames = c(colnames(dt_agg_all_years)[1], "Total")
     )
   })
@@ -185,19 +226,16 @@ server <- function(input, output) {
   })
   
   # NEW: Render the description filtered table
-  # output$description_table <- renderDT({
-  #   dt_desc <- description_filtered_rows()
-  #   # Subset only the desired columns: date, start_time, Description, channel_network
-  #   dt_desc_subset <- head(dt_desc[, .(date, start_time, Description, channel_network)], 10)
-  #   datatable(
-  #     dt_desc_subset,
-  #     options = list(
-  #       scrollX = TRUE,
-  #       dom = "t"
-  #     ),
-  #     rownames = FALSE
-  #   )
-  # })
+  output$description_table <- renderDT({
+    dt_desc <- description_filtered_rows()
+    # Subset only the desired columns: date, Start Time, Description, Network
+    dt_desc_subset <- head(dt_desc[, .(Date, Time, Description, Network)], 10)
+    datatable(
+      dt_desc_subset,
+      options = list(scrollX = TRUE, dom = "t"),
+      rownames = FALSE
+    )
+  })
   
   
   output$download_dataset <- downloadHandler(
@@ -224,4 +262,3 @@ shinyApp(ui = ui, server = server)
 ## Maybe filter by word in data?
 
 ## Right now the filter will lose entries that had bad dates
-

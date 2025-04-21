@@ -1,3 +1,7 @@
+
+## Note we must run superClean.R locally first, to ensure the Datasets/dt_final.rds file is saved.
+source("superClean.R")
+
 library(rsconnect)
 
 token <- Sys.getenv("SHINYAPPS_TOKEN")
@@ -11,5 +15,5 @@ rsconnect::setAccountInfo(
 
 rsconnect::deployApp(
   appDir = "./",
-  appName = "Marion-Stokes-Tapes-Dashboard"
+  appName = "Marion-Stokes-Tapes-Dashboard",
 )
