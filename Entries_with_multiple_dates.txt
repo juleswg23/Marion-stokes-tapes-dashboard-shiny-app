@@ -1,4 +1,4 @@
-Some notes for Danuel
+Some notes for Daniel
 
 ~63054 have exactly one date on the tape
 ~13500 have 2 or more dates on the tape
@@ -12,3 +12,10 @@ Because the dates are so close together when there are multiple dates,
 I am going to ignore all but the first date listed on the analysis. For a handful (1%)
 of the entries, the second date is over a month away from the first one, but
 that doesn't feel like enough to overhaul the analysis at the moment.
+
+
+
+Add column with num-dates
+
+Description column
+- Most common terms

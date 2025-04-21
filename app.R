@@ -11,7 +11,7 @@ dt[, start_time := as.character(start_time)]
 
 # Define the UI
 ui <- fluidPage(
-  titlePanel("Marion Stokes Archive Dashboard"),
+  titlePanel("Marion Stokes Tapes Dashboard"),
   
   sidebarLayout(
     sidebarPanel(
@@ -47,11 +47,17 @@ ui <- fluidPage(
         uiOutput("view_only_filter_ui")
       ),
       
+      div(
+        style = "font-size: 0.85em; color: #666;",
+        p(HTML("<strong>Last updated:</strong> April 2025")),
+        p(HTML("<strong>Author:</strong> Jules Walzer-Goldfeld")),
+        p(HTML("<strong>See the code:</strong> <a href = https://github.com/juleswg23/Marion-stokes-tapes-dashboard-shiny-app>Github Link</a>"))
+      ),
+      
       # NEW: Description filter input
       # textInput("desc_filter", "Filter by Description:", 
                 # placeholder = "Type text to filter descriptions")
     ),
-    
     
     
     mainPanel(

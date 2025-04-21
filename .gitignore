@@ -51,3 +51,6 @@ rsconnect/
 columnCounts/
 
 *.pdf
+*.txt
+Cleaning.R
+Descriptions.R
