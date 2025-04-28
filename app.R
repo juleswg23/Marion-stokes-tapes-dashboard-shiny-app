@@ -6,7 +6,7 @@ library(ggplot2)
 library(data.table)
 library(DT)
 
-dt <- readRDS("Datasets/dt_final.rds")
+dt <- readRDS("Datasets/dt_with_dates_only.rds")
 dt[, Time := as.character(Time)]
 
 # Define the UI
