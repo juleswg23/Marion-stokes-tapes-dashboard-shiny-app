@@ -86,7 +86,7 @@ ui <- fluidPage(
         width = 9,
         div(
           style = "height: calc(100vh - 500px); overflow-y: auto;",
-          h4("Rows Matching Description"),
+          h4(textOutput("description_table_header")),
           DTOutput("description_table")
         )
       ),
@@ -221,6 +221,8 @@ server <- function(input, output) {
     if (nzchar(input$desc_filter)) {
       # Assuming your description column is named "description"
       dt_clean <- dt_clean[grepl(input$desc_filter, Description, ignore.case = TRUE)]
+    } else {
+      return (data.table())
     }
     dt_clean
   })
@@ -228,22 +230,52 @@ server <- function(input, output) {
   # NEW: Render the description filtered table
   output$description_table <- renderDT({
     dt_desc <- description_filtered_rows()
+    if (nrow(dt_desc) == 0) {
+      empty_dt <- data.table(Date = character(), Time = character(), Description = character(), Network = character())
+      return(
+        datatable(
+          empty_dt,
+          options = list(scrollX = TRUE, dom = "t"),
+          rownames = FALSE
+        )
+      )
+    }
+    
+    
     # Subset only the desired columns: date, Start Time, Description, Network
-    dt_desc_subset <- head(dt_desc[, .(Date, Time, Description, Network)], 10)
+    dt_desc_subset <-dt_desc[, .(Date, Time, Description, Network)]
     datatable(
       dt_desc_subset,
-      options = list(scrollX = TRUE, dom = "t"),
-      rownames = FALSE
+      options = list(scrollX = TRUE,
+                     dom = "t",
+                     pageLength = 200 
+      ),
+      rownames = FALSE,
     )
   })
   
+  description_row_count <- reactive({
+    if (nzchar(input$desc_filter)) {
+      sum(grepl(input$desc_filter, dt$Description, ignore.case = TRUE))
+    } else {
+      0
+    }
+  })
+  
+  output$description_table_header <- renderText({
+    row_count <- description_row_count()
+    if (row_count == 0) {
+      return ("Type in Search by Description to Get Started")
+    }
+    paste0("Rows Matching Description (", description_row_count(), ")")
+  })
   
   output$download_dataset <- downloadHandler(
     filename = function() {
-      paste0("Marion_Stokes_Dataset_", Sys.Date(), ".csv")
+      paste0("dataset_with_dates_only_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      file.copy("Datasets/dataset_cleaned.csv", file)
+      file.copy("Datasets/dataset_with_dates_only.csv", file)
     },
     contentType = "text/csv"
   )
