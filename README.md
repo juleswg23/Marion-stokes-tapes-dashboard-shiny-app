@@ -69,7 +69,7 @@ shiny::runApp()
 5. The plot and table will update automatically
 6. Search for specific entries by filtering by text in the description field
 
-## Downloads. 
+## Downloads
 There are three datasets available to download
 - `Datasets/dataset_all_tapes.csv` contains all tapes in the original spreadsheet of Marion's tapes on the Internet Archive
 - `Datasets/dataset_with_dates_only.csv` contains only tapes with dates in computer-readable format. The Shinyapps dashboard is based on this dataset
