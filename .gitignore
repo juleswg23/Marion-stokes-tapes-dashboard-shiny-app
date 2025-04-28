@@ -55,4 +55,5 @@ columnCounts/
 Cleaning.R
 Descriptions.R
 .DS_Store
+Datasets/.DS_Store
 DatasetVersions3-31.R
