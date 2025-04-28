@@ -1,6 +1,6 @@
 # Marion Stokes Tapes Dashboard
 
-An interactive dashboard for exploring and analyzing television news data from the Marion Stokes tapes archive.
+An interactive dashboard for exploring and analyzing television news data from the Marion Stokes tapes archive. I worked on this project in collaboration with Daniel Fernandez, a history student at The New School working on his senior thesis: **Marion Stokes: An Archivist Out Of Place​**.
 
 <img width="1435" alt="SampleDashboard" src="https://github.com/user-attachments/assets/1f40a1e5-094f-429d-8429-c57eae7d0682" />
 
@@ -37,7 +37,7 @@ The dashboard consists of:
 - Interactive frequency plots with adjustable time buckets
 - Dynamic filtering options
 - Interactive data tables
-- Responsive design that works on different screen sizes
+- Search for tapes by description
 
 ## Installation & Usage
 
@@ -60,7 +60,6 @@ source("superClean.R")
 shiny::runApp()
 ```
 
-
 ## How to Use
 
 1. Select a category from the dropdown menu
@@ -68,3 +67,10 @@ shiny::runApp()
 3. Choose how many top items to display
 4. Use the "View Only" filters to focus on specific subsets
 5. The plot and table will update automatically
+6. Search for specific entries by filtering by text in the description field
+
+## Downloads. 
+There are three datasets available to download
+- `Datasets/dataset_all_tapes.csv` contains all tapes in the original spreadsheet of Marion's tapes on the Internet Archive
+- `Datasets/dataset_with_dates_only.csv` contains only tapes with dates in computer-readable format. The Shinyapps dashboard is based on this dataset
+- `Marion Stokes videocassette.xlsx` contains the original dataset found in the internet archive [here](https://archive.org/details/marionstokes_201706)
