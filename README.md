@@ -2,7 +2,7 @@
 
 An interactive dashboard for exploring and analyzing television news data from the Marion Stokes tapes archive. I worked on this project in collaboration with Daniel Fernandez, a history student at The New School working on his senior thesis: **Marion Stokes: An Archivist Out Of Place​**.
 
-<img width="1435" alt="SampleDashboard" src="https://github.com/user-attachments/assets/1f40a1e5-094f-429d-8429-c57eae7d0682" />
+<img width="1435" alt="SampleDashboard" src="Images/SampleDashboard.png" />
 
 ## About the Project
 
